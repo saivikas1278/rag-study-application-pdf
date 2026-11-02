@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Claude-style minimalist scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Base animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+/* Droid Mascot Keyframe Animations */
+@keyframes botHover {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.animate-bot-hover {
+  animation: botHover 3.2s ease-in-out infinite;
+}
+
+@keyframes botHoverFast {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bot-hover-fast {
+  animation: botHoverFast 1.8s ease-in-out infinite;
+}
+
+@keyframes antennaPulse {
+  0%, 100% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 2px rgba(13, 148, 136, 0.4));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.95));
+  }
+}
+
+.animate-antenna-pulse {
+  animation: antennaPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes eyeBlink {
+  0%, 94%, 98%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.12);
+  }
+}
+
+.animate-eye-blink {
+  animation: eyeBlink 4.2s infinite;
+  transform-origin: center;
+}
+
+@keyframes radarSweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radarSweep 1.6s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes mouthEqualizer1 {
+  0%, 100% { height: 3px; }
+  50% { height: 11px; }
+}
+
+@keyframes mouthEqualizer2 {
+  0%, 100% { height: 10px; }
+  50% { height: 4px; }
+}
+
+@keyframes mouthEqualizer3 {
+  0%, 100% { height: 5px; }
+  50% { height: 12px; }
+}
+
+.animate-mouth-wave-1 {
+  animation: mouthEqualizer1 0.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.animate-mouth-wave-2 {
+  animation: mouthEqualizer2 0.45s ease-in-out infinite 0.1s;
+  transform-origin: center;
+}
+
+.animate-mouth-wave-3 {
+  animation: mouthEqualizer3 0.38s ease-in-out infinite 0.05s;
+  transform-origin: center;
+}
+
+@keyframes celebrateBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-10px) rotate(-6deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(-4px) rotate(4deg) scale(1.08);
+  }
+  75% {
+    transform: translateY(-8px) rotate(-2deg) scale(1.04);
+  }
+}
+
+.animate-celebrate-bounce {
+  animation: celebrateBounce 1.2s ease-in-out infinite;
+}
+
+@keyframes floatParticle {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-12px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.4);
+  }
+}
+
+.animate-float-particle {
+  animation: floatParticle 1.8s ease-out infinite;
+}
