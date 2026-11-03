@@ -75,7 +75,7 @@ export default function UploadSection({
 
       // Simulate step feedback while server processes extraction & embeddings
       const progressTimer = setTimeout(() => {
-        setUploadProgressText('Chunking pages & generating 384-dim embeddings...');
+        setUploadProgressText('Chunking pages & generating semantic embeddings...');
       }, 900);
 
       const res = await fetch(`${apiBase}/documents/upload`, {

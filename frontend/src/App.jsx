@@ -28,12 +28,22 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [messages, setMessages] = useState([]);
   const [selectedCitation, setSelectedCitation] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
 
   // Sparky Droid & Study Utility States
   const [botMood, setBotMood] = useState('idle');
   const [floatingBotVisible, setFloatingBotVisible] = useState(true);
-  const [mascotMinimized, setMascotMinimized] = useState(false);
+  const [mascotMinimized, setMascotMinimized] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640;
+    }
+    return false;
+  });
   const [cheatSheetOpen, setCheatSheetOpen] = useState(false);
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
   const [tipIndex, setTipIndex] = useState(0);
@@ -78,6 +88,10 @@ export default function App() {
     });
     // Trigger celebration on upload
     triggerBotCelebration();
+    // Auto-close drawer on mobile to return focus to chat
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const triggerBotCelebration = () => {
@@ -94,6 +108,9 @@ export default function App() {
   const handleClearChat = () => {
     setMessages([]);
     setBotMood('idle');
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const getBotSpeechBubble = () => {
@@ -111,11 +128,22 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans antialiased relative">
-      {/* Claude-style Left Sidebar */}
+      {/* Mobile Drawer Overlay Backdrop */}
+      {sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 md:hidden animate-fadeIn"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Claude-style Left Sidebar / Mobile Slide-Over Drawer */}
       <aside 
-        className={`${
-          sidebarOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full lg:w-0'
-        } transition-all duration-200 ease-in-out border-r border-slate-200/80 bg-white flex flex-col shrink-0 z-40 overflow-hidden relative shadow-xs`}
+        className={`
+          fixed inset-y-0 left-0 z-50 md:static md:z-30 h-full
+          ${sidebarOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full md:w-0'}
+          transition-all duration-200 ease-in-out border-r border-slate-200/80 bg-white flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-xs
+        `}
         aria-label="Study Assistant Navigation & Knowledge Base"
       >
         <div className="w-80 flex flex-col h-full">
@@ -208,7 +236,7 @@ export default function App() {
 
       {/* Roaming Interactive Floating Companion Droid (Bottom-Right) */}
       {floatingBotVisible && (
-        <div className="fixed bottom-24 right-5 sm:bottom-24 sm:right-7 z-30 pointer-events-auto flex flex-col items-end animate-fadeIn max-w-[calc(100vw-2rem)]">
+        <div className="fixed bottom-20 right-3 sm:bottom-24 sm:right-7 z-30 pointer-events-auto flex flex-col items-end animate-fadeIn max-w-[calc(100vw-1.5rem)]">
           {mascotMinimized ? (
             /* Minimized mascot pill */
             <button

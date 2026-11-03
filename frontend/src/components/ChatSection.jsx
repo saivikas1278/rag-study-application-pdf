@@ -362,11 +362,11 @@ export default function ChatSection({
   return (
     <div className="flex flex-col h-full bg-[#F8FAFC] relative">
       {/* Messages Stream Container */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6">
-        <div className="max-w-3xl mx-auto w-full space-y-6">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="max-w-3xl mx-auto w-full space-y-4 sm:space-y-6">
           {messages.length === 0 ? (
             /* Claude-style Centered Empty State */
-            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-8 space-y-8 animate-fadeIn">
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fadeIn">
               {/* Sparky Animated Droid Hero */}
               <div className="flex flex-col items-center space-y-3">
                 <CompanionBot 
@@ -376,10 +376,10 @@ export default function ChatSection({
                   bubbleText="Hi! I'm Sparky, your study buddy!"
                   className="mb-1"
                 />
-                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 font-sans">
+                <h2 className="text-xl sm:text-3xl font-semibold tracking-tight text-slate-900 font-sans">
                   How can I help you study today?
                 </h2>
-                <p className="text-sm text-slate-500 max-w-md leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed px-2">
                   {documentCount > 0 
                     ? `I've indexed ${documentCount} study ${documentCount === 1 ? 'document' : 'documents'}. Ask anything, compare materials, or pick a study mode below.`
                     : "Upload lecture slides or textbook PDFs in the sidebar, or ask a question to get started."
@@ -388,7 +388,7 @@ export default function ChatSection({
               </div>
 
               {/* 2x2 Starter Question Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full max-w-xl text-left">
                 {starterQuestions.map((item, idx) => (
                   <button
                     key={idx}
@@ -398,13 +398,13 @@ export default function ChatSection({
                       adjustTextareaHeight();
                     }}
                     disabled={querying}
-                    className="p-3.5 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 hover:border-teal-300 text-left transition-all duration-200 shadow-2xs group flex flex-col justify-between"
+                    className="p-3 sm:p-3.5 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 hover:border-teal-300 text-left transition-all duration-200 shadow-2xs group flex flex-col justify-between"
                   >
                     <div>
                       <div className="text-xs font-semibold text-slate-800 group-hover:text-teal-700 transition-colors">
                         {item.title}
                       </div>
-                      <div className="text-[11.5px] text-slate-500 mt-0.5 line-clamp-1">
+                      <div className="text-[11.5px] text-slate-500 mt-0.5 line-clamp-2 sm:line-clamp-1">
                         {item.desc}
                       </div>
                     </div>
@@ -421,7 +421,7 @@ export default function ChatSection({
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-3.5 animate-fadeIn ${
+                className={`flex gap-2.5 sm:gap-3.5 animate-fadeIn ${
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
@@ -440,10 +440,10 @@ export default function ChatSection({
                 <div
                   className={`relative ${
                     msg.role === 'user'
-                      ? 'max-w-xl bg-slate-100 border border-slate-200/80 text-slate-900 rounded-2xl rounded-br-xs px-4 py-3 shadow-2xs'
+                      ? 'max-w-[85%] sm:max-w-xl bg-slate-100 border border-slate-200/80 text-slate-900 rounded-2xl rounded-br-xs px-3.5 sm:px-4 py-2.5 sm:py-3 shadow-2xs'
                       : msg.isError
-                      ? 'max-w-2xl bg-white border border-red-200 rounded-2xl p-4 text-red-700 shadow-2xs'
-                      : 'flex-1 max-w-2xl text-slate-800 space-y-3 pt-0.5'
+                      ? 'max-w-[95%] sm:max-w-2xl bg-white border border-red-200 rounded-2xl p-3.5 sm:p-4 text-red-700 shadow-2xs'
+                      : 'flex-1 min-w-0 max-w-full sm:max-w-2xl text-slate-800 space-y-2.5 sm:space-y-3 pt-0.5'
                   }`}
                 >
                   {/* Message Content */}
@@ -589,7 +589,7 @@ export default function ChatSection({
       </div>
 
       {/* Claude Signature Floating Bottom Input Dock */}
-      <div className="sticky bottom-0 w-full px-4 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent pointer-events-auto">
+      <div className="sticky bottom-0 w-full px-3 sm:px-6 pb-3 sm:pb-4 pt-1.5 sm:pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/95 to-transparent pointer-events-auto">
         <div className="max-w-3xl mx-auto w-full">
           {errorMessage && (
             <div className="mb-2 p-2.5 rounded-xl border border-red-200 bg-red-50 text-xs text-red-700 flex items-center gap-2 shadow-2xs animate-fadeIn">
@@ -600,7 +600,7 @@ export default function ChatSection({
 
           <form 
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl border border-slate-200/90 shadow-md hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/15 transition-all p-3"
+            className="bg-white rounded-2xl border border-slate-200/90 shadow-md hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/15 transition-all p-2.5 sm:p-3"
           >
             {/* Resizing Textarea */}
             <textarea
@@ -618,13 +618,14 @@ export default function ChatSection({
             {/* Bottom Controls inside dock */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-1">
               {/* Left action: Attach PDF or toggle note */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {onAttachClick && (
                   <button
                     type="button"
                     onClick={onAttachClick}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
                     title="Upload or manage study PDFs"
+                    aria-label="Upload PDF"
                   >
                     <Paperclip className="w-4 h-4" />
                   </button>
@@ -635,11 +636,11 @@ export default function ChatSection({
                   <button
                     type="button"
                     onClick={onOpenComparison}
-                    className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 transition"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 transition shadow-2xs"
                     title="Compare two indexed documents side-by-side"
                   >
                     <Scale className="w-3 h-3 text-indigo-600" />
-                    <span>Compare</span>
+                    <span className="hidden sm:inline">Compare</span>
                   </button>
                 )}
 
@@ -648,11 +649,11 @@ export default function ChatSection({
                   <button
                     type="button"
                     onClick={onOpenCheatSheet}
-                    className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/60 transition"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/60 transition shadow-2xs"
                     title="Generate 1-page Study Cheat-Sheet"
                   >
                     <FileSpreadsheet className="w-3 h-3 text-teal-600" />
-                    <span>Cheat-Sheet</span>
+                    <span className="hidden sm:inline">Cheat-Sheet</span>
                   </button>
                 )}
 
@@ -662,7 +663,7 @@ export default function ChatSection({
               </div>
 
               {/* Right action: Character count & Circular Send Button */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 sm:gap-2.5">
                 <span className="text-[11px] text-slate-400 font-mono">
                   {inputQuestion.length}/1000
                 </span>
