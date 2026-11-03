@@ -24,6 +24,26 @@ class EmbeddingGenerationError(Exception):
     pass
 
 
+def is_gemini_embedding_model(model_name: Optional[str] = None) -> bool:
+    """Checks if the configured model identifier targets Gemini Cloud Embeddings."""
+    name = (model_name or settings.embedding_model_name or "").lower().strip()
+    return "gemini" in name or name.startswith("models/") or name in ["text-embedding-004", "gemini-embedding-001"]
+
+
+def _generate_gemini_embeddings(texts: List[str]) -> List[List[float]]:
+    """Generates embeddings using Google Gemini Cloud API (zero local PyTorch RAM)."""
+    try:
+        from google import genai
+        client = genai.Client(api_key=settings.gemini_api_key)
+        res = client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=texts,
+        )
+        return [e.values for e in res.embeddings]
+    except Exception as e:
+        raise EmbeddingGenerationError(f"Gemini Cloud embedding failed: {str(e)}")
+
+
 def get_embedding_model(model_name: Optional[str] = None) -> Any:
     """Lazily loads and caches the SentenceTransformer model singleton.
 
@@ -88,18 +108,19 @@ def generate_chunk_embeddings(
             )
         texts_to_embed.append(chunk.text)
 
-    # 3. Retrieve model (injected mock or cached singleton)
-    active_model = model or get_embedding_model(model_name=model_name)
-
-    # 4. Generate embeddings
-    try:
-        raw_embeddings = active_model.encode(
-            texts_to_embed,
-            show_progress_bar=False,
-            convert_to_numpy=True
-        )
-    except Exception as e:
-        raise EmbeddingGenerationError(f"Model encoding failed: {str(e)}")
+    # 3. Generate embeddings via Gemini Cloud API or local SentenceTransformer
+    if model is None and is_gemini_embedding_model(model_name):
+        raw_embeddings = _generate_gemini_embeddings(texts_to_embed)
+    else:
+        active_model = model or get_embedding_model(model_name=model_name)
+        try:
+            raw_embeddings = active_model.encode(
+                texts_to_embed,
+                show_progress_bar=False,
+                convert_to_numpy=True
+            )
+        except Exception as e:
+            raise EmbeddingGenerationError(f"Model encoding failed: {str(e)}")
 
     # Ensure numpy array
     embeddings_array = np.asarray(raw_embeddings, dtype=np.float32)
@@ -155,16 +176,18 @@ def generate_query_embedding(
     if not query or not query.strip():
         raise ValueError("query string cannot be empty or whitespace only.")
 
-    active_model = model or get_embedding_model(model_name=model_name)
-
-    try:
-        raw_embedding = active_model.encode(
-            [query.strip()],
-            show_progress_bar=False,
-            convert_to_numpy=True
-        )
-    except Exception as e:
-        raise EmbeddingGenerationError(f"Model query encoding failed: {str(e)}")
+    if model is None and is_gemini_embedding_model(model_name):
+        raw_embedding = _generate_gemini_embeddings([query.strip()])
+    else:
+        active_model = model or get_embedding_model(model_name=model_name)
+        try:
+            raw_embedding = active_model.encode(
+                [query.strip()],
+                show_progress_bar=False,
+                convert_to_numpy=True
+            )
+        except Exception as e:
+            raise EmbeddingGenerationError(f"Model query encoding failed: {str(e)}")
 
     embedding_array = np.asarray(raw_embedding, dtype=np.float32)
 

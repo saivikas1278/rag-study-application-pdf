@@ -28,6 +28,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Testing artifacts
+test_sample.pdf
+*.pdf
+
 # IDE & OS
 .vscode/
 .idea/

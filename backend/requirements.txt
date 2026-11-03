@@ -1,3 +1,7 @@
+# Lightweight CPU-only PyTorch (reduces memory from 800MB+ to ~90MB for cloud free tiers)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2.0
+
 # FastAPI web framework
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0

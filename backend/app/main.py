@@ -1,6 +1,7 @@
 """FastAPI application entry point for AI PDF Study Assistant."""
 
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
@@ -15,6 +16,7 @@ from app.services.ingestion_service import (
 from app.services.search_service import search_documents
 from app.services.query_service import process_study_query
 from app.services.comparison_service import compare_study_documents
+from app.services.embedding_service import is_gemini_embedding_model
 
 
 # Setup basic logging
@@ -24,10 +26,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger("rag-backend")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler to pre-warm models and check system readiness."""
+    logger.info(f"Starting server in {settings.environment} mode...")
+    logger.info(f"Active embedding model: {settings.embedding_model_name}")
+
+    if not is_gemini_embedding_model():
+        try:
+            logger.info("Pre-warming local SentenceTransformer embedding model...")
+            from app.services.embedding_service import get_embedding_model
+            get_embedding_model()
+            logger.info("Local SentenceTransformer model loaded successfully.")
+        except Exception as e:
+            logger.warning(f"Embedding model pre-warming deferred: {e}")
+    else:
+        logger.info("Using Gemini Cloud Embeddings (Zero PyTorch RAM footprint).")
+
+    yield
+
+    logger.info("Shutting down RAG backend.")
+
+
 app = FastAPI(
     title="AI PDF Study Assistant API",
     description="Backend API powering PDF extraction, local embeddings, vector retrieval, Gemini QA, and multi-document comparisons.",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 # Enable Cross-Origin Resource Sharing (CORS) for React frontend communication
@@ -40,7 +66,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     """Root endpoint welcoming users to the RAG API."""
     return {
@@ -50,7 +76,7 @@ def root():
     }
 
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def health_check():
     """Health check endpoint to verify server status and active configurations."""
     return {
