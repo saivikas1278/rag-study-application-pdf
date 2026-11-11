@@ -193,7 +193,7 @@ export default function UploadSection({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         onClick={() => !disabled && !uploading && fileInputRef.current?.click()}
-        className={`p-5 rounded-xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center text-center cursor-pointer ${
+        className={`p-4 sm:p-5 rounded-2xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center text-center cursor-pointer active:scale-[0.99] ${
           disabled
             ? 'border-slate-200 bg-slate-50/60 cursor-not-allowed opacity-60'
             : isDragging
@@ -215,15 +215,15 @@ export default function UploadSection({
           </div>
         ) : (
           <div className="space-y-2 py-1 flex flex-col items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-teal-50/80 border border-teal-200/60 flex items-center justify-center text-teal-600 transition-colors shadow-2xs">
               <UploadCloud className="w-5 h-5 text-teal-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-800">
-                <span className="text-teal-600 font-semibold underline decoration-teal-300 underline-offset-2">Click to upload</span> or drag & drop
+                <span className="text-teal-600 font-semibold underline decoration-teal-300 underline-offset-2">Tap to upload PDF</span> <span className="hidden sm:inline">or drag & drop</span>
               </p>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                PDF textbooks, papers & notes (max {MAX_SIZE_MB}MB)
+                PDF notes & textbooks (max {MAX_SIZE_MB}MB)
               </p>
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function UploadSection({
             <span className="font-mono text-[11px] bg-slate-200/80 text-slate-700 px-1.5 py-0.2 rounded-full">{documents.length}</span>
           </div>
 
-          <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+          <div className="space-y-1.5 max-h-40 sm:max-h-48 overflow-y-auto pr-1">
             {documents.map((doc, idx) => (
               <div 
                 key={`${doc.filename}-${idx}`}
@@ -307,7 +307,7 @@ export default function UploadSection({
             {onOpenComparison && documents.length >= 2 && (
               <button
                 onClick={onOpenComparison}
-                className="w-full py-2 px-3 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold flex items-center justify-center gap-2 transition shadow-2xs group"
+                className="w-full py-2 px-3 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold flex items-center justify-center gap-2 transition shadow-2xs group active:scale-[0.99]"
                 title="Compare two indexed documents side-by-side"
               >
                 <Scale className="w-3.5 h-3.5 text-indigo-600 group-hover:scale-110 transition-transform" />
@@ -319,7 +319,7 @@ export default function UploadSection({
             {onOpenCheatSheet && (
               <button
                 onClick={onOpenCheatSheet}
-                className="w-full py-2 px-3 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/70 text-teal-800 text-xs font-medium flex items-center justify-center gap-2 transition shadow-2xs group"
+                className="w-full py-2 px-3 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/70 text-teal-800 text-xs font-medium flex items-center justify-center gap-2 transition shadow-2xs group active:scale-[0.99]"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-teal-600 group-hover:scale-110 transition-transform" />
                 <span>Generate Study Cheat-Sheet</span>

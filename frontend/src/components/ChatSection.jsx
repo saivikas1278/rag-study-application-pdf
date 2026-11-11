@@ -611,7 +611,7 @@ export default function ChatSection({
               onKeyDown={handleKeyDown}
               disabled={querying}
               placeholder="Ask a question about your study notes..."
-              className="w-full resize-none bg-transparent border-0 focus:outline-none focus:ring-0 p-1 text-sm text-slate-900 placeholder:text-slate-400 leading-relaxed max-h-40"
+              className="w-full resize-none bg-transparent border-0 focus:outline-none focus:ring-0 p-1 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 leading-relaxed max-h-40"
               maxLength={1000}
             />
 

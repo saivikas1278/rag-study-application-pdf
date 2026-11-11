@@ -141,12 +141,12 @@ export default function App() {
       <aside 
         className={`
           fixed inset-y-0 left-0 z-50 md:static md:z-30 h-full
-          ${sidebarOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full md:w-0'}
+          ${sidebarOpen ? 'w-[85vw] max-w-[320px] sm:w-80 translate-x-0' : 'w-0 -translate-x-full md:w-0'}
           transition-all duration-200 ease-in-out border-r border-slate-200/80 bg-white flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-xs
         `}
         aria-label="Study Assistant Navigation & Knowledge Base"
       >
-        <div className="w-80 flex flex-col h-full">
+        <div className="w-full flex flex-col h-full">
           {/* Sidebar Top: New Chat & Close Toggle */}
           <div className="p-3.5 border-b border-slate-100 flex items-center justify-between gap-2">
             <button
