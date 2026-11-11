@@ -127,7 +127,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans antialiased relative">
+    <div className="flex h-[100dvh] h-screen w-full max-w-full overflow-hidden bg-[#F8FAFC] text-slate-900 font-sans antialiased relative">
       {/* Mobile Drawer Overlay Backdrop */}
       {sidebarOpen && (
         <div 

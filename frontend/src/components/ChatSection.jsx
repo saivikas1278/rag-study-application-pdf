@@ -408,7 +408,7 @@ export default function ChatSection({
                         {item.desc}
                       </div>
                     </div>
-                    <div className="text-[11px] text-teal-600 font-medium mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-[11px] text-teal-600 font-medium mt-2 flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <span>Use prompt</span>
                       <span>→</span>
                     </div>
@@ -492,7 +492,7 @@ export default function ChatSection({
                       {/* Text to Speech Button */}
                       <button
                         onClick={() => handleToggleSpeak(msg)}
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border transition shadow-2xs flex items-center gap-1.5 ${
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium border active:scale-95 transition shadow-2xs flex items-center gap-1.5 ${
                           currentlySpeakingId === msg.id
                             ? 'border-teal-500 bg-teal-50 text-teal-700 animate-pulse'
                             : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 text-slate-600 hover:text-teal-700'
@@ -516,7 +516,7 @@ export default function ChatSection({
                       {onOpenComparison && documentCount >= 2 && (
                         <button
                           onClick={onOpenComparison}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-800 transition shadow-2xs flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-full text-xs font-medium border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 active:scale-95 text-indigo-800 transition shadow-2xs flex items-center gap-1"
                           title="Compare 2 documents side-by-side"
                         >
                           <Scale className="w-3 h-3 text-indigo-600" />
@@ -528,7 +528,7 @@ export default function ChatSection({
                       {onOpenCheatSheet && (
                         <button
                           onClick={onOpenCheatSheet}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 active:scale-95 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1"
                           title="Generate instant 1-page study cheatsheet"
                         >
                           <span>📑 Cheat-Sheet</span>
@@ -539,21 +539,21 @@ export default function ChatSection({
                       <button
                         onClick={() => handleSubmit(null, "What more can we do with this topic? Suggest next steps and practical ideas.")}
                         disabled={querying}
-                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
+                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 active:scale-95 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
                       >
                         <span>💡 Next Steps</span>
                       </button>
                       <button
                         onClick={() => handleSubmit(null, "Quiz me on this with 3 practice questions to test my recall.")}
                         disabled={querying}
-                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
+                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 active:scale-95 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
                       >
                         <span>🎯 Quiz Me</span>
                       </button>
                       <button
                         onClick={() => handleSubmit(null, "Can you explain this in even simpler terms with a real-world analogy?")}
                         disabled={querying}
-                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
+                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 active:scale-95 text-slate-600 hover:text-teal-700 transition shadow-2xs flex items-center gap-1 disabled:opacity-40"
                       >
                         <span>🔍 Analogy</span>
                       </button>

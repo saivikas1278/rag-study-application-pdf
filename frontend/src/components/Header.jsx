@@ -55,7 +55,7 @@ export default function Header({
           {onOpenComparison && documentCount >= 2 && (
             <button
               onClick={onOpenComparison}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200/90 hover:bg-indigo-100 transition shadow-2xs"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200/90 hover:bg-indigo-100 active:scale-95 transition shadow-2xs"
               title="Compare 2 indexed documents side-by-side"
             >
               <Scale className="w-3.5 h-3.5 text-indigo-600" />
@@ -67,7 +67,7 @@ export default function Header({
           {onToggleFloatingBot && (
             <button
               onClick={onToggleFloatingBot}
-              className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium border transition shadow-2xs ${
+              className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium border active:scale-95 transition shadow-2xs ${
                 floatingBotVisible
                   ? 'border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100'
                   : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
@@ -103,7 +103,7 @@ export default function Header({
             onClick={onRefreshHealth}
             disabled={loadingHealth}
             title="Refresh backend status"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition disabled:opacity-40"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 active:scale-95 transition disabled:opacity-40"
             aria-label="Refresh connection"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingHealth ? 'animate-spin text-teal-600' : ''}`} />
