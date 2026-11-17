@@ -10,7 +10,9 @@ import {
   Bot,
   Minus,
   Sparkles,
-  Scale
+  Scale,
+  MessageSquare,
+  Plus
 } from 'lucide-react';
 import Header from './components/Header';
 import UploadSection from './components/UploadSection';
@@ -23,11 +25,107 @@ import InstallModal from './components/InstallModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+const createNewSession = (title = 'New Chat') => ({
+  id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+  title,
+  messages: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+});
+
+const formatTime = (isoString) => {
+  if (!isoString) return '';
+  try {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+};
+
 export default function App() {
   const [healthData, setHealthData] = useState(null);
   const [loadingHealth, setLoadingHealth] = useState(true);
-  const [documents, setDocuments] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [sidebarTab, setSidebarTab] = useState('chats'); // 'chats' | 'docs'
+
+  // Persisted Documents
+  const [documents, setDocuments] = useState(() => {
+    try {
+      const saved = localStorage.getItem('rag_study_documents_v1');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('rag_study_documents_v1', JSON.stringify(documents));
+    } catch (err) {
+      console.warn('Failed to save documents to localStorage:', err);
+    }
+  }, [documents]);
+
+  // Persisted Multi-Chat Sessions
+  const [sessions, setSessions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('rag_study_chat_sessions_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Error loading chat sessions:', e);
+    }
+    return [createNewSession()];
+  });
+
+  const [activeSessionId, setActiveSessionId] = useState(() => {
+    try {
+      const savedId = localStorage.getItem('rag_study_active_session_id_v1');
+      if (savedId) return savedId;
+    } catch {}
+    return '';
+  });
+
+  // Ensure activeSessionId always references a valid session
+  useEffect(() => {
+    if (!sessions.some(s => s.id === activeSessionId) && sessions.length > 0) {
+      setActiveSessionId(sessions[0].id);
+    }
+  }, [sessions, activeSessionId]);
+
+  // Save sessions to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('rag_study_chat_sessions_v1', JSON.stringify(sessions));
+    } catch (err) {
+      console.warn('Failed to save sessions:', err);
+    }
+  }, [sessions]);
+
+  // Save activeSessionId to localStorage
+  useEffect(() => {
+    try {
+      if (activeSessionId) {
+        localStorage.setItem('rag_study_active_session_id_v1', activeSessionId);
+      }
+    } catch (err) {
+      console.warn('Failed to save activeSessionId:', err);
+    }
+  }, [activeSessionId]);
+
+  const activeSession = sessions.find((s) => s.id === activeSessionId) || sessions[0] || createNewSession();
+
   const [selectedCitation, setSelectedCitation] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -141,14 +239,87 @@ export default function App() {
     setTimeout(() => setBotMood('idle'), 2600);
   };
 
-  // Handle sending new chat message
-  const handleSendMessage = (msg) => {
-    setMessages((prev) => [...prev, msg]);
+  // Multi-Chat Session Handlers
+  const handleNewChat = () => {
+    // If current session is already empty, just keep it active and close mobile drawer
+    if (activeSession && activeSession.messages && activeSession.messages.length === 0) {
+      setSidebarTab('chats');
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+      return;
+    }
+
+    const newSession = createNewSession();
+    setSessions((prev) => [newSession, ...prev]);
+    setActiveSessionId(newSession.id);
+    setBotMood('idle');
+    setSidebarTab('chats');
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
-  // Handle clearing conversation / starting new chat
+  const handleSelectSession = (sessionId) => {
+    setActiveSessionId(sessionId);
+    setBotMood('idle');
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const handleDeleteSession = (sessionId, e) => {
+    if (e) e.stopPropagation();
+    setSessions((prev) => {
+      const remaining = prev.filter((s) => s.id !== sessionId);
+      if (remaining.length === 0) {
+        const fresh = createNewSession();
+        setActiveSessionId(fresh.id);
+        return [fresh];
+      }
+      if (activeSessionId === sessionId) {
+        setActiveSessionId(remaining[0].id);
+      }
+      return remaining;
+    });
+  };
+
+  // Handle sending new chat message (scoped to activeSession only)
+  const handleSendMessage = (msg) => {
+    const currentId = activeSession?.id || activeSessionId;
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id !== currentId) return s;
+
+        const updatedMessages = [...(s.messages || []), msg];
+        let updatedTitle = s.title;
+
+        // Auto-title from the first user question if still default
+        if ((!s.title || s.title === 'New Chat') && msg.role === 'user') {
+          const clean = msg.content.trim().replace(/\n+/g, ' ');
+          updatedTitle = clean.length > 28 ? `${clean.slice(0, 28)}...` : clean;
+        }
+
+        return {
+          ...s,
+          title: updatedTitle,
+          messages: updatedMessages,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+  };
+
+  // Handle clearing current session's conversation
   const handleClearChat = () => {
-    setMessages([]);
+    const currentId = activeSession?.id || activeSessionId;
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === currentId
+          ? { ...s, messages: [], updatedAt: new Date().toISOString() }
+          : s
+      )
+    );
     setBotMood('idle');
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setSidebarOpen(false);
@@ -192,8 +363,8 @@ export default function App() {
           {/* Sidebar Top: New Chat & Close Toggle */}
           <div className="p-3.5 border-b border-slate-100 flex items-center justify-between gap-2">
             <button
-              onClick={handleClearChat}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-xs font-medium text-slate-800 transition shadow-2xs group"
+              onClick={handleNewChat}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-teal-50/80 hover:bg-teal-100/80 border border-teal-200 text-xs font-semibold text-teal-800 transition shadow-2xs group"
               title="Start a fresh conversation"
             >
               <SquarePen className="w-3.5 h-3.5 text-teal-600 group-hover:scale-110 transition-transform" />
@@ -210,17 +381,89 @@ export default function App() {
             </button>
           </div>
 
-          {/* Sidebar Body: Knowledge Base & Upload Section */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <UploadSection
-              apiBase={API_BASE}
-              documents={documents}
-              onDocumentUploaded={handleDocumentUploaded}
-              disabled={healthData?.status !== 'healthy' && !loadingHealth}
-              onOpenCheatSheet={() => setCheatSheetOpen(true)}
-              onOpenComparison={() => setComparisonModalOpen(true)}
-              onBotCelebrate={triggerBotCelebration}
-            />
+          {/* Segmented Tab Switcher: Chats vs Documents */}
+          <div className="px-3 pt-2 pb-1.5 flex gap-1 border-b border-slate-100 bg-slate-50/50">
+            <button
+              onClick={() => setSidebarTab('chats')}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                sidebarTab === 'chats'
+                  ? 'bg-white text-teal-900 shadow-2xs font-semibold border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-teal-600" />
+              <span>Chats ({sessions.length})</span>
+            </button>
+
+            <button
+              onClick={() => setSidebarTab('docs')}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                sidebarTab === 'docs'
+                  ? 'bg-white text-teal-900 shadow-2xs font-semibold border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5 text-teal-600" />
+              <span>Files ({documents.length})</span>
+            </button>
+          </div>
+
+          {/* Sidebar Body: Dynamic Switcher */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {sidebarTab === 'chats' ? (
+              /* Chat Sessions History List */
+              <div className="space-y-1.5">
+                <div className="px-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Recent Conversations
+                </div>
+
+                {sessions.map((session) => {
+                  const isActive = session.id === (activeSession?.id || activeSessionId);
+                  return (
+                    <div
+                      key={session.id}
+                      onClick={() => handleSelectSession(session.id)}
+                      className={`group relative flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition border text-left ${
+                        isActive
+                          ? 'bg-teal-50/80 border-teal-300 text-teal-950 font-medium shadow-2xs'
+                          : 'bg-white hover:bg-slate-50 border-slate-200/70 text-slate-700 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs truncate font-medium">{session.title || 'New Chat'}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            {session.messages?.length || 0} msgs • {formatTime(session.updatedAt || session.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Delete individual chat session */}
+                      <button
+                        onClick={(e) => handleDeleteSession(session.id, e)}
+                        className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 opacity-80 sm:opacity-0 group-hover:opacity-100 transition shrink-0"
+                        title="Delete this chat"
+                        aria-label="Delete this chat"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Knowledge Base & PDF Upload Section */
+              <UploadSection
+                apiBase={API_BASE}
+                documents={documents}
+                onDocumentUploaded={handleDocumentUploaded}
+                disabled={healthData?.status !== 'healthy' && !loadingHealth}
+                onOpenCheatSheet={() => setCheatSheetOpen(true)}
+                onOpenComparison={() => setComparisonModalOpen(true)}
+                onBotCelebrate={triggerBotCelebration}
+              />
+            )}
           </div>
 
           {/* Sidebar Bottom: Session Info & Clear Button */}
@@ -230,14 +473,14 @@ export default function App() {
               <span>Grounded RAG Mode</span>
             </div>
 
-            {messages.length > 0 && (
+            {activeSession?.messages?.length > 0 && (
               <button
                 onClick={handleClearChat}
                 className="text-[11px] text-slate-400 hover:text-red-600 flex items-center gap-1 transition"
-                title="Clear current conversation"
+                title="Clear current conversation messages"
               >
                 <Trash2 className="w-3 h-3" />
-                <span>Clear</span>
+                <span>Clear chat</span>
               </button>
             )}
           </div>
@@ -259,18 +502,23 @@ export default function App() {
           onOpenComparison={() => setComparisonModalOpen(true)}
           onInstallClick={handleInstallClick}
           isInstalled={isInstalled}
+          onNewChat={handleNewChat}
+          activeChatTitle={activeSession?.title}
         />
 
-        {/* Chat Canvas */}
+        {/* Chat Canvas (Displaying ONLY the active session's messages) */}
         <main className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
           <ChatSection
             apiBase={API_BASE}
-            messages={messages}
+            messages={activeSession?.messages || []}
             onSendMessage={handleSendMessage}
             onClearChat={handleClearChat}
             onCitationClick={(cite) => setSelectedCitation(cite)}
             documentCount={documents.length}
-            onAttachClick={() => setSidebarOpen(true)}
+            onAttachClick={() => {
+              setSidebarTab('docs');
+              setSidebarOpen(true);
+            }}
             onBotMoodChange={(mood) => setBotMood(mood)}
             onOpenCheatSheet={() => setCheatSheetOpen(true)}
             onOpenComparison={() => setComparisonModalOpen(true)}

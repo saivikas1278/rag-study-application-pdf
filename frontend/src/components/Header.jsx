@@ -7,7 +7,9 @@ import {
   PanelLeft, 
   Bot,
   Scale,
-  Download
+  Download,
+  SquarePen,
+  MessageSquare
 } from 'lucide-react';
 
 export default function Header({ 
@@ -21,14 +23,16 @@ export default function Header({
   onToggleFloatingBot,
   onOpenComparison,
   onInstallClick,
-  isInstalled = false
+  isInstalled = false,
+  onNewChat,
+  activeChatTitle
 }) {
   const isHealthy = healthData?.status === 'healthy';
 
   return (
     <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-xs sticky top-0 z-30 transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2 sm:gap-3">
-        {/* Left: Sidebar Toggle & Claude-style Model Selector Pill */}
+        {/* Left: Sidebar Toggle, Model Selector, Active Chat Title & Quick New Chat */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {onToggleSidebar && (
             <button
@@ -50,6 +54,26 @@ export default function Header({
             <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0" />
             <span className="font-semibold text-slate-900 truncate">Study Assistant</span>
           </div>
+
+          {/* Active Chat Title Badge */}
+          {activeChatTitle && (
+            <div className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs text-slate-600 max-w-[180px] truncate shadow-2xs">
+              <MessageSquare className="w-3 h-3 text-teal-600 shrink-0" />
+              <span className="truncate">{activeChatTitle}</span>
+            </div>
+          )}
+
+          {/* Quick New Chat Action */}
+          {onNewChat && (
+            <button
+              onClick={onNewChat}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-teal-200/80 bg-teal-50/60 hover:bg-teal-100/70 text-xs font-medium text-teal-800 transition shadow-2xs active:scale-95"
+              title="Start a fresh conversation"
+            >
+              <SquarePen className="w-3.5 h-3.5 text-teal-600" />
+              <span className="hidden sm:inline">New Chat</span>
+            </button>
+          )}
         </div>
 
         {/* Right: Compare Shortcut, Mascot Toggle, Document Counter, Status Dot & Refresh */}
