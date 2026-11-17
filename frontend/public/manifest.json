@@ -1,0 +1,18 @@
+{
+  "name": "AI PDF Study Assistant",
+  "short_name": "Study Assistant",
+  "description": "Grounded study notes, citations, comparisons and AI study companion droid.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0D9488",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

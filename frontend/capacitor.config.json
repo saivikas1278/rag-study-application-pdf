@@ -1,0 +1,8 @@
+{
+  "appId": "com.studyassistant.rag",
+  "appName": "Study Assistant",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
