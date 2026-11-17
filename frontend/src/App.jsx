@@ -19,6 +19,7 @@ import CitationModal from './components/CitationModal';
 import CheatSheetModal from './components/CheatSheetModal';
 import ComparisonModal from './components/ComparisonModal';
 import CompanionBot from './components/CompanionBot';
+import InstallModal from './components/InstallModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -34,6 +35,47 @@ export default function App() {
     }
     return true;
   });
+
+  // PWA Install prompt states
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [installModalOpen, setInstallModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (isStandalone) {
+        setIsInstalled(true);
+      }
+
+      const handler = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+    }
+  }, []);
+
+  const handleDirectInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstalled(true);
+        setInstallModalOpen(false);
+      }
+    }
+  };
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      handleDirectInstall();
+    } else {
+      setInstallModalOpen(true);
+    }
+  };
 
   // Sparky Droid & Study Utility States
   const [botMood, setBotMood] = useState('idle');
@@ -215,6 +257,8 @@ export default function App() {
           floatingBotVisible={floatingBotVisible}
           onToggleFloatingBot={() => setFloatingBotVisible((prev) => !prev)}
           onOpenComparison={() => setComparisonModalOpen(true)}
+          onInstallClick={handleInstallClick}
+          isInstalled={isInstalled}
         />
 
         {/* Chat Canvas */}
@@ -301,6 +345,13 @@ export default function App() {
         onBotCelebrate={triggerBotCelebration}
         onBotMoodChange={(mood) => setBotMood(mood)}
         onCitationClick={(cite) => setSelectedCitation(cite)}
+      />
+      {/* PWA Mobile Install Modal */}
+      <InstallModal
+        isOpen={installModalOpen}
+        onClose={() => setInstallModalOpen(false)}
+        onInstallDirectly={handleDirectInstall}
+        canInstallDirectly={!!deferredPrompt}
       />
     </div>
   );

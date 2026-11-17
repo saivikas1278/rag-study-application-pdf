@@ -6,7 +6,8 @@ import {
   PanelLeftClose, 
   PanelLeft, 
   Bot,
-  Scale
+  Scale,
+  Download
 } from 'lucide-react';
 
 export default function Header({ 
@@ -18,7 +19,9 @@ export default function Header({
   onToggleSidebar,
   floatingBotVisible = true,
   onToggleFloatingBot,
-  onOpenComparison
+  onOpenComparison,
+  onInstallClick,
+  isInstalled = false
 }) {
   const isHealthy = healthData?.status === 'healthy';
 
@@ -51,6 +54,18 @@ export default function Header({
 
         {/* Right: Compare Shortcut, Mascot Toggle, Document Counter, Status Dot & Refresh */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Install Mobile App Button */}
+          {onInstallClick && !isInstalled && (
+            <button
+              onClick={onInstallClick}
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-2xs active:scale-95 transition"
+              title="Install Study Assistant Mobile App"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Install App</span>
+            </button>
+          )}
+
           {/* Compare Documents Pill (when >= 2 docs exist) */}
           {onOpenComparison && documentCount >= 2 && (
             <button
